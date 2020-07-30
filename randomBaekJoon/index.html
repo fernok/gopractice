@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Random BaekJoon</title>
+</head>
+<body>
+    <div style="width: 500px; margin: 0 auto;">
+        <h1>Random BaekJoon Generator</h1>
+        <form method="POST" action="/runRandom">
+            <input placeholder="write your id" name="account">
+            <button>Generate!</button>
+        </form>
+        <h4>Hello {{ .Account }}, </h4>
+        <h4>{{ .Title }}<a href="{{.Address}}" target="_blank">{{ .Address }}</a></h4>
+    </div>
+</body>
+</html>
