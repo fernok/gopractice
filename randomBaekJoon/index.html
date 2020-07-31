@@ -3,22 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/stylesheets/style.css">
     <title>Random BaekJoon</title>
-    <style>
-        span {
-            color: #428BCA;
-        }
-    </style>
 </head>
 <body>
-    <div style="width: 500px; margin: 0 auto;">
-        <h1>Random Bae<span>/&lt;</span>Joon<span>&gt;</span> Generator</h1>
+    <div>
+        <h1>Random Bae<span class="title-span">/&lt;</span>Joon<span class="title-span">&gt;</span> Generator</h1>
         <form method="POST" action="/runRandom">
             <input placeholder="write your id" name="account">
             <button>Generate!</button>
         </form>
-        <h4>Hello {{ .Account }}, </h4>
-        <h4>{{ .Title }}<a href="{{.Address}}" target="_blank">{{ .Address }}</a></h4>
+        <h4>Hello <span class="userID">{{ .Account }}</span> !</h4>
+        <h4>{{ .Title }}<a href="{{.Address}}" target="_blank" class="link">{{ .Address }}</a>{{ .Message }}</h4>
     </div>
 </body>
 </html>

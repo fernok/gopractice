@@ -9,6 +9,7 @@ import (
 func main() {
 	c := 10
 	b := make([]byte, c)
+
 	_, err := rand.Read(b)
 	if err != nil {
 		fmt.Println("error:", err)

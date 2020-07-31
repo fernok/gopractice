@@ -142,7 +142,9 @@ func GetUserSolvedProblemInfo(userID string) []int {
 
 	res, err := http.Get(targetURL)
 	checkErr(err)
-	checkCode(res)
+	if res.StatusCode != 200 {
+		return []int{-1}
+	}
 
 	defer res.Body.Close()
 
