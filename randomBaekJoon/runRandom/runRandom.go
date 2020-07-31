@@ -13,7 +13,12 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-type extractedProblemLinks struct {
+var baseURL string = "https://www.acmicpc.net"
+var problemURL string = "/problem/tags"
+var userURL string = "/user/"
+
+// ExtractedProblemLinks is a struct for the list of all problems
+type ExtractedProblemLinks struct {
 	tagTitle      string
 	problemNumber int
 	title         string
@@ -21,40 +26,33 @@ type extractedProblemLinks struct {
 }
 
 // RunRandom generates a string of a random BaekJoon problem
-func RunRandom(user string) (string, string) {
+func RunRandom(problems []ExtractedProblemLinks, userSolved []int) (string, string) {
 	startTime := time.Now()
 
-	var baseURL string = "https://www.acmicpc.net"
-	var problemURL string = "/problem/tags"
-	var userURL string = "/user/"
-	var userID string = user
 	var newRand int
 
-	resultList := getPage(baseURL, problemURL)
-
-	solvedList := getUserSolvedProblemInfo(baseURL, userURL, userID)
-
 	for true {
-		newRand = getRandomIndex(len(resultList))
-		if resultList[newRand].problemNumber == 0 {
+		newRand = GetRandomIndex(len(problems))
+		if problems[newRand].problemNumber == 0 {
 			continue
 		}
-		if !contains(solvedList, resultList[newRand].problemNumber) {
+		if !Contains(userSolved, problems[newRand].problemNumber) {
 			break
 		}
 	}
-	fmt.Println(baseURL + "/problem/" + strconv.Itoa(resultList[newRand].problemNumber))
+	fmt.Println(baseURL + "/problem/" + strconv.Itoa(problems[newRand].problemNumber))
 
 	elapsedTime := time.Now().Sub(startTime)
 	fmt.Println("Time elapsed: ", elapsedTime)
 
-	return resultList[newRand].title, baseURL + "/problem/" + strconv.Itoa(resultList[newRand].problemNumber)
+	return problems[newRand].title, baseURL + "/problem/" + strconv.Itoa(problems[newRand].problemNumber)
 }
 
-func getPage(url, subURL string) []extractedProblemLinks {
-	var resultProblems []extractedProblemLinks
-	var targetURL string = url + subURL
-	c := make(chan []extractedProblemLinks)
+// GetPage retrieves the full list of all problems
+func GetPage() []ExtractedProblemLinks {
+	var resultProblems []ExtractedProblemLinks
+	var targetURL string = baseURL + problemURL
+	c := make(chan []ExtractedProblemLinks)
 	numberOfTags := 0
 
 	res, err := http.Get(targetURL)
@@ -78,7 +76,7 @@ func getPage(url, subURL string) []extractedProblemLinks {
 		a := card.Find("a")
 		href, ok := a.Attr("href")
 		if ok {
-			address = url + href
+			address = baseURL + href
 		}
 		tdList := card.Find("td")
 		tdList.Each(func(j int, td *goquery.Selection) {
@@ -103,8 +101,8 @@ func getPage(url, subURL string) []extractedProblemLinks {
 	return resultProblems
 }
 
-func extraactSeperateProblems(url, title string, c chan<- []extractedProblemLinks) {
-	var resultList []extractedProblemLinks
+func extraactSeperateProblems(url, title string, c chan<- []ExtractedProblemLinks) {
+	var resultList []ExtractedProblemLinks
 
 	res, err := http.Get(url)
 	checkErr(err)
@@ -118,7 +116,7 @@ func extraactSeperateProblems(url, title string, c chan<- []extractedProblemLink
 	trList := doc.Find("tr")
 
 	trList.Each(func(i int, tr *goquery.Selection) {
-		var problem extractedProblemLinks
+		var problem ExtractedProblemLinks
 
 		problem.tagTitle = title
 		problem.problemNumber = atoi(tr.Find(".list_problem_id").Text())
@@ -137,7 +135,8 @@ func extraactSeperateProblems(url, title string, c chan<- []extractedProblemLink
 	c <- resultList
 }
 
-func getUserSolvedProblemInfo(baseURL, userURL, userID string) []int {
+// GetUserSolvedProblemInfo returns an array of all solved problems by the user
+func GetUserSolvedProblemInfo(userID string) []int {
 	targetURL := baseURL + userURL + userID
 	var resultList []int
 
@@ -183,7 +182,8 @@ func atoi(str string) int {
 	return n
 }
 
-func contains(arr []int, number int) bool {
+// Contains checks if the int array contains a given number; true if it does, false otherwise
+func Contains(arr []int, number int) bool {
 	for _, a := range arr {
 		if a == number {
 			return true
@@ -192,7 +192,8 @@ func contains(arr []int, number int) bool {
 	return false
 }
 
-func getRandomIndex(number int) int {
+// GetRandomIndex returns a random integer from a given range of numbers
+func GetRandomIndex(number int) int {
 	n, err := rand.Int(rand.Reader, big.NewInt(int64(number)))
 	checkErr(err)
 	return int(n.Int64())
